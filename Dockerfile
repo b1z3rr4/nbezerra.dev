@@ -1,8 +1,8 @@
 FROM oven/bun:1.2-alpine AS base
 WORKDIR /app
 
+# ---- deps ----
 FROM base AS deps
-
 COPY package.json bun.lock* ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/api/package.json ./packages/api/
@@ -11,6 +11,7 @@ COPY packages/env/package.json ./packages/env/
 
 RUN bun install --frozen-lockfile
 
+# ---- build ----
 FROM base AS builder
 WORKDIR /app
 
@@ -22,8 +23,9 @@ RUN bun install --frozen-lockfile
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN bun run build --filter=web
+RUN cd apps/web && bun run build
 
+# ---- runner ----
 FROM node:22-alpine AS runner
 WORKDIR /app
 
