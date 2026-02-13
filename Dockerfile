@@ -1,17 +1,25 @@
-# Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+RUN apk add --no-cache python3 make g++
+
 COPY package*.json ./
+COPY apps/web/package*.json apps/web/
+
 RUN npm install
+
 COPY . .
+
+WORKDIR /app/apps/web
 RUN npm run build
 
-# Production stage
 FROM node:20-alpine AS runner
 WORKDIR /app
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-RUN npm install --production
+
+COPY --from=builder /app/apps/web/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/web/.next ./.next
+COPY --from=builder /app/apps/web/public ./public
+
 EXPOSE 8080
 CMD ["npm", "start"]
