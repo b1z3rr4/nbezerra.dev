@@ -20,6 +20,8 @@ COPY . .
 
 RUN bun install --frozen-lockfile
 
+RUN cd apps/web && bun install --frozen-lockfile
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
