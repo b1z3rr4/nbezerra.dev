@@ -10,10 +10,14 @@ COPY packages ./packages
 
 RUN bun install --frozen-lockfile
 
+RUN apk add --no-cache nodejs
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN bun run --filter web build
+WORKDIR /app/apps/web
+RUN node ../../node_modules/.bin/next build
+WORKDIR /app
 
 FROM node:22-alpine AS runner
 WORKDIR /app
