@@ -126,3 +126,22 @@
     @apply font-sans;
   }
 }
+
+/* Subtle background pattern (portfolio style) */
+.bg-pattern {
+  background-color: var(--background);
+  background-image: radial-gradient(
+      circle at 1px 1px,
+      oklch(0.92 0 0) 1px,
+      transparent 0
+    );
+  background-size: 24px 24px;
+}
+
+.dark .bg-pattern {
+  background-image: radial-gradient(
+      circle at 1px 1px,
+      oklch(0.22 0 0) 1px,
+      transparent 0
+    );
+}

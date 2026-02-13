@@ -1,0 +1,40 @@
+name: Deploy Next.js to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Decode Service Account
+        run: |
+          echo ${{ secrets.GCP_SA_KEY }} | base64 --decode > service-account.json
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: service-account.json
+          export_default_credentials: true
+
+      - name: Build Docker image
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nextjs-app/nextjs-app"
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nextjs-app/nextjs-app"
+          gcloud run deploy nextjs-app \
+            --image $IMAGE \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated
