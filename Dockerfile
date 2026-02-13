@@ -3,12 +3,9 @@ WORKDIR /app
 
 RUN apk add --no-cache python3 make g++
 
-COPY package*.json ./
-COPY apps/web/package*.json apps/web/
+COPY . .
 
 RUN npm install
-
-COPY . .
 
 WORKDIR /app/apps/web
 RUN npm run build
@@ -16,8 +13,10 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
+
 COPY --from=builder /app/apps/web/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
+
 COPY --from=builder /app/apps/web/.next ./.next
 COPY --from=builder /app/apps/web/public ./public
 
